@@ -12,31 +12,53 @@ using namespace std;
 // this has worse time complexity than a hash table; intuitively it should be O(n) = log2(n) since each iteration of the binary tree stores twice as many values, therefore you are guaranteed to find the value you want in log2(n) number of searches (worst-case), while hash tables are just O(1)
 
 namespace binary_search_tree{
-  string version = "1.1";
+  string version = "1.2";
   Node* root = nullptr;
 }
 using namespace binary_search_tree;
 
-unsigned short add_to_tree(unsigned short to_add, Node* add_to){
+Node* add_to_tree(unsigned short to_add, Node* add_to){
   // recursive function, checks this node and its children for empty space that fits the binary search tree requirements
   // yes i know the variable names are terrible
-  // 0: success, 1: no space
   if (add_to == nullptr){ // empty space is found (requirements are checked by the previous recursion), should also work for root
-    Node* new_node = new Node(to_add);
-    add_to = new_node;
-    return 0;
+    if (add_to == root){
+      root = new Node(to_add);
+      return root;
+    }
+    add_to = new Node(to_add);
+    return add_to;
   }
   if (to_add < add_to->value){ // less than
-    return add_to_tree(to_add, add_to->left);
+    Node* child = add_to_tree(to_add, add_to->left);
+    if (child != nullptr){
+      add_to->left = child;
+    }
+    return nullptr;
   }
   // greater than or equal to
-  return add_to_tree(to_add, add_to->right);
+  Node* child = add_to_tree(to_add, add_to->right);
+  if (child != nullptr){
+    add_to->right = child;
+  }
+  return nullptr;
+}
+
+void print_tree(Node* to_print, unsigned short recursion){
+  // recursive function, prints this node's children
+  if (to_print == nullptr){ // if this node doesn't exist
+    return;
+  }
+  for (int i = 1; i < recursion; i++){
+    cout << ' ';
+  }
+  cout << to_print->value << endl;
+  // now, print children
+  print_tree(to_print->left, recursion + 1);
+  print_tree(to_print->right, recursion + 1);
 }
 
 int main(){
   cout << GREEN << "Binary Search Tree - Version " << version << endl;
-  root = new Node(300);
-  cout << WHITE << "Root value: " << RESET << root->value << endl;
   cout << YELLOW << "Type 'HELP' for a list of commands." << endl;
   string input;
   while (input != "QUIT"){ // QUIT
@@ -47,6 +69,7 @@ int main(){
       cout << WHITE << "HELP: prints a list of commands (obviously)" << endl;
       cout << WHITE << "QUIT: stops the program" << endl;
       cout << WHITE << "ADD: adds a number to the binary tree" << endl;
+      cout << WHITE << "PRINT: prints the binary tree" << endl;
     } else if (input == "ADD"){ // ADD
       string input1;
       cout << GREEN << "Enter an integer (1-999): " << RESET << flush;
@@ -57,13 +80,11 @@ int main(){
 	// this will print the wrapped version, technically you could enter -65000 and it would be within range, it's a feature
 	continue;
       }
-      unsigned short return_status = add_to_tree(to_add, root); // call add to root
-      if (return_status == 0){ // success
-	cout << WHITE << "Added " << to_add << " to tree." << endl;
-      } else {
-	cout << RED << "Something went wrong." << endl;
-      }
-      
+      add_to_tree(to_add, root); // call add to root
+      cout << WHITE << "Added " << to_add << " to tree." << endl;
+    } else if (input == "PRINT"){ // PRINT
+      cout << RESET;
+      print_tree(root, 1);
     }
   }
   cout << YELLOW << "Goodbye!" << endl;
