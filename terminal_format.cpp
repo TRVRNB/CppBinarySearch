@@ -1,6 +1,8 @@
 // TRVRNB's Terminal Formatting ver. 1
 // https://TRVRNB/CppTrvLib.git
 // this should work cross-platform?
+#ifndef TERMINAL_FORMAT_CODES
+#define TERMINAL_FORMAT_CODES
 
 namespace terminal_format_codes{
   // the special colors are all bold
@@ -12,3 +14,5 @@ namespace terminal_format_codes{
   char RESET[8] = "\033[0m"; // reset to normal formatting
 }
 using namespace terminal_format_codes;
+
+#endif
