@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "terminal_format.cpp"
 #include "node.h"
 #include "node.cpp"
@@ -12,7 +13,7 @@ using namespace std;
 // this has worse time complexity than a hash table; intuitively it should be O(n) = log2(n) since each iteration of the binary tree stores twice as many values, therefore you are guaranteed to find the value you want in log2(n) number of searches (worst-case), while hash tables are just O(1)
 
 namespace binary_search_tree{
-  string version = "1.2";
+  string version = "1.3";
   Node* root = nullptr;
 }
 using namespace binary_search_tree;
@@ -69,6 +70,7 @@ int main(){
       cout << WHITE << "HELP: prints a list of commands (obviously)" << endl;
       cout << WHITE << "QUIT: stops the program" << endl;
       cout << WHITE << "ADD: adds a number to the binary tree" << endl;
+      cout << WHITE << "LOAD: adds multiple numbers from a file" << endl;
       cout << WHITE << "PRINT: prints the binary tree" << endl;
     } else if (input == "ADD"){ // ADD
       string input1;
@@ -85,6 +87,39 @@ int main(){
     } else if (input == "PRINT"){ // PRINT
       cout << RESET;
       print_tree(root, 1);
+    } else if (input == "LOAD"){ // LOAD
+      // this is mostly copied from my heap loading code
+      cout << GREEN << "Enter the filname (max 80 chars): " << RESET << flush;
+      string input;
+      cin >> input;
+      // make the file
+      ifstream file(input);
+      char file_text_array[401]; // c-style (array) works better for this
+      file.getline(file_text_array, 400);
+      string file_text(file_text_array);
+      if (file_text.length() == 0){
+	cout << YELLOW << input << RED << " not found in current folder." << endl;
+      } else {
+	// iterate over it
+	int string_index = 0;
+	string current_num;
+	for (int i = 0; i < 100; i++){
+	  if (string_index < file_text.length()){
+	    current_num = "";
+	    int j = 0;
+	    // individual numbers
+	    while (file_text[string_index] != ' ' && j < 4){
+	      current_num.append(1, file_text[string_index]);
+	      string_index++;
+	      j++;
+	    }
+	  }
+	  string_index++;
+	  unsigned short to_add = stoi(current_num);
+	  add_to_tree(to_add, root);
+	}
+      cout << WHITE << "Done!" << endl;
+      }
     }
   }
   cout << YELLOW << "Goodbye!" << endl;
