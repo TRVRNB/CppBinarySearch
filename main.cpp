@@ -13,7 +13,7 @@ using namespace std;
 // this has worse time complexity than a hash table; intuitively it should be O(n) = log2(n) since each iteration of the binary tree stores twice as many values, therefore you are guaranteed to find the value you want in log2(n) number of searches (worst-case), while hash tables are just O(1)
 
 namespace binary_search_tree{
-  string version = "1.3";
+  string version = "1.4";
   Node* root = nullptr;
 }
 using namespace binary_search_tree;
@@ -50,7 +50,7 @@ void print_tree(Node* to_print, unsigned short recursion){
     return;
   }
   for (int i = 1; i < recursion; i++){
-    cout << ' ';
+    cout << "  ";
   }
   cout << to_print->value << endl;
   // now, print children
@@ -62,6 +62,7 @@ int main(){
   cout << GREEN << "Binary Search Tree - Version " << version << endl;
   cout << YELLOW << "Type 'HELP' for a list of commands." << endl;
   string input;
+
   while (input != "QUIT"){ // QUIT
     input = "";
     cout << GREEN << "Enter a command: " << RESET << flush;
@@ -72,6 +73,8 @@ int main(){
       cout << WHITE << "ADD: adds a number to the binary tree" << endl;
       cout << WHITE << "LOAD: adds multiple numbers from a file" << endl;
       cout << WHITE << "PRINT: prints the binary tree" << endl;
+      cout << WHITE << "SEARCH: find instances of a number";
+
     } else if (input == "ADD"){ // ADD
       string input1;
       cout << GREEN << "Enter an integer (1-999): " << RESET << flush;
@@ -84,9 +87,11 @@ int main(){
       }
       add_to_tree(to_add, root); // call add to root
       cout << WHITE << "Added " << to_add << " to tree." << endl;
+
     } else if (input == "PRINT"){ // PRINT
       cout << RESET;
       print_tree(root, 1);
+      
     } else if (input == "LOAD"){ // LOAD
       // this is mostly copied from my heap loading code
       cout << GREEN << "Enter the filname (max 80 chars): " << RESET << flush;
@@ -119,6 +124,40 @@ int main(){
 	  add_to_tree(to_add, root);
 	}
       cout << WHITE << "Done!" << endl;
+      }
+      
+    } else if (input == "SEARCH"){ // SEARCH
+      Node* current_node = root;
+      cout << GREEN << "Enter a number to search for: " << RESET << flush;
+      string input;
+      cin >> input;
+      unsigned short to_find = stoi(input); // cast to int
+      cout << RESET;
+      while (current_node->value != to_find){
+	// stop searching if it reaches a wall or it finds the right number
+	if (current_node->value > to_find){ // too big
+	  cout << "Less than " << current_node->value << "..." << endl;
+	  current_node = current_node->left;
+	} else { // too small
+	  cout << "Greater than " << current_node->value << "..." << endl;
+	  current_node = current_node->right;
+	}
+	if (current_node == nullptr){ // end found
+	  break;
+	}
+      }
+      // now, find out if it failed
+      if (current_node == nullptr){ // failure
+	cout << WHITE << "No instances of " << YELLOW << to_find << WHITE << " found." << endl;
+      } else { // success, check how many exist
+	unsigned int instances = 0;
+	while (current_node != nullptr){
+	  if (current_node->value == to_find){
+	    instances++;
+	  }
+	  current_node = current_node->right;
+	}
+	cout << WHITE << "Instances of " << YELLOW << to_find << ": " << instances << RESET << endl;
       }
     }
   }

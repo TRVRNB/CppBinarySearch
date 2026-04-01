@@ -5,14 +5,11 @@ import sys, random
 
 sys.stdout = open("numbers.txt", "w") # print directly to numbers.txt
 data = ""
-used_numbers = []
+
 
 for i in range(100):
-	# generate 100 numbers, no repeats!
+	# generate 100 numbers
 	num = random.randint(1, 999)
-	while num in used_numbers: # keep looking; there will always be an available number
-		num = random.randint(1, 999)
-	used_numbers.append(num)
 	data += str(num) # add this to the line
 	if i != 99: # add space if it's not the last number
 		data += " "
