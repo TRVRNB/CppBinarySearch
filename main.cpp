@@ -13,7 +13,7 @@ using namespace std;
 // this has worse time complexity than a hash table; intuitively it should be O(n) = log2(n) since each iteration of the binary tree stores twice as many values, therefore you are guaranteed to find the value you want in log2(n) number of searches (worst-case), while hash tables are just O(1)
 
 namespace binary_search_tree{
-  string version = "1.4";
+  string version = "1.5";
   Node* root = nullptr;
 }
 using namespace binary_search_tree;
@@ -73,8 +73,8 @@ int main(){
       cout << WHITE << "ADD: adds a number to the binary tree" << endl;
       cout << WHITE << "LOAD: adds multiple numbers from a file" << endl;
       cout << WHITE << "PRINT: prints the binary tree" << endl;
-      cout << WHITE << "SEARCH: find instances of a number";
-
+      cout << WHITE << "SEARCH: find if a number exists" << endl;
+      cout << WHITE << "DELETE: delete a number from the tree" << endl;
     } else if (input == "ADD"){ // ADD
       string input1;
       cout << GREEN << "Enter an integer (1-999): " << RESET << flush;
@@ -127,6 +127,10 @@ int main(){
       }
       
     } else if (input == "SEARCH"){ // SEARCH
+      if (root == nullptr){
+	cout << RED << "Add some numbers first!" << endl;
+	continue;
+      }
       Node* current_node = root;
       cout << GREEN << "Enter a number to search for: " << RESET << flush;
       string input;
@@ -149,15 +153,99 @@ int main(){
       // now, find out if it failed
       if (current_node == nullptr){ // failure
 	cout << WHITE << "No instances of " << YELLOW << to_find << WHITE << " found." << endl;
-      } else { // success, check how many exist
-	unsigned int instances = 0;
-	while (current_node != nullptr){
-	  if (current_node->value == to_find){
-	    instances++;
-	  }
+      } else { // success
+	cout << WHITE << "That number exists!" << endl;
+      }
+    } else if (input == "DELETE"){ // DELETE
+      if (root == nullptr){
+	cout << RED << "Add some numbers first!" << endl;
+      }
+      Node* current_node = root;
+      Node* previous_node = nullptr;
+      cout << GREEN << "Enter a number to delete: " << RESET << flush;
+      string input;
+      cin >> input;
+      unsigned short to_find = stoi(input);
+      cout << RESET;
+      while (current_node->value != to_find){
+	// same as SEARCH loop but keeps parent
+	previous_node = current_node;
+	if (current_node->value > to_find){
+	  current_node = current_node->left;
+	} else {
 	  current_node = current_node->right;
 	}
-	cout << WHITE << "Instances of " << YELLOW << to_find << ": " << instances << RESET << endl;
+	if (current_node == nullptr){
+	  break;
+	}
+      }
+      if (current_node == nullptr){ // failure
+	cout << RED << "No instances found." << endl;
+      } else {
+	// four cases: no children, one child, two children, and root
+	// for no children it can just do nothing since there will be no consequence to deleting it
+	if (current_node == root){ // check root first since it's simplest
+	  if (current_node->right != nullptr){
+	    root = current_node->right;
+	    current_node->right = nullptr;
+	  } else {
+	    root = current_node->left;
+	    current_node->left = nullptr;
+	  }
+	}
+	if (current_node->right != nullptr){ // has right child
+	  if (current_node == previous_node->right){ // donate it to parent
+	    previous_node->right = current_node->right;
+	  } else {
+	    previous_node->left = current_node->right;
+	  }
+	  if (current_node->left != nullptr){ // has left child
+	    // look for room for left child
+	    Node* current_node2 = root;
+	    Node* left = current_node->left;
+	    while (!(current_node2->left == nullptr && current_node2->value > left->value)){
+	      if (current_node2->value > left->value){
+		current_node2 = current_node2->left;
+	      } else {
+		current_node2 = current_node2->right;
+	      }
+	    }
+	    // current_node2 is new parent
+	    current_node2->left = left;
+	    current_node->left = nullptr;
+	  }
+	} else if (current_node->left != nullptr){
+	  if (previous_node != nullptr){ // not root case
+	    if (current_node == previous_node->right){
+	      previous_node->right = current_node->left;
+	    } else {
+	      previous_node->left = current_node->left;
+	    }
+	  } else {
+	    // look for room for left child (same as above), in this case there was originally a right child
+	    Node* current_node2 = root;
+	    Node* left = current_node->left;
+	    while (!(current_node2->left == nullptr && current_node2->value > left->value)){
+	      if (current_node2->value > left->value){
+		current_node2 = current_node2->left;
+	      } else {
+		current_node2 = current_node2->right;
+	      }
+	    }
+	    // current_node2 is new parent
+	    current_node2->left = left;
+	    current_node->left = nullptr;
+	  }
+	}
+	if (previous_node != nullptr){ // delete self from parent if it still exists
+	  if (previous_node->left == current_node){
+	    previous_node->left = nullptr;
+	  } else if (previous_node->right == current_node){
+	    previous_node->right = nullptr;
+	  }
+	}
+	delete current_node;
+	cout << WHITE << "Deleted " << RESET << input << endl;
       }
     }
   }
