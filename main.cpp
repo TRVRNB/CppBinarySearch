@@ -13,7 +13,7 @@ using namespace std;
 // this has worse time complexity than a hash table; intuitively it should be O(n) = log2(n) since each iteration of the binary tree stores twice as many values, therefore you are guaranteed to find the value you want in log2(n) number of searches (worst-case), while hash tables are just O(1)
 
 namespace binary_search_tree{
-  string version = "1.5";
+  string version = "1.6";
   Node* root = nullptr;
 }
 using namespace binary_search_tree;
@@ -49,13 +49,18 @@ void print_tree(Node* to_print, unsigned short recursion){
   if (to_print == nullptr){ // if this node doesn't exist
     return;
   }
-  for (int i = 1; i < recursion; i++){
-    cout << "  ";
+  recursion++;
+  print_tree(to_print->right, recursion); // print right first
+  for (int i = 2; i < recursion; i++){ // spaces before self
+    cout << ' ';
+    if (i < recursion-1){
+      cout << '|';
+    } else {
+      cout << ' ';
+    }
   }
-  cout << to_print->value << endl;
-  // now, print children
-  print_tree(to_print->left, recursion + 1);
-  print_tree(to_print->right, recursion + 1);
+  cout << to_print->value << endl; // cout self
+  print_tree(to_print->left, recursion); // print left
 }
 
 int main(){
